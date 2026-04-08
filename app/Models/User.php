@@ -22,7 +22,12 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'role'
     ];
+
+    public function profil(){
+        return $this->hasOne(Profil::class);
+    }
 
     /**
      * The attributes that should be hidden for serialization.
