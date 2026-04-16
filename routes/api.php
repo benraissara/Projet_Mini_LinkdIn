@@ -25,11 +25,13 @@ Route::middleware('auth:api')->group(function () {
 
         
         Route::post('offres/{offre}/candidater', [OffreController::class, 'postuler']);
+        Route::get('mes-candidatures', [OffreController::class, 'mesCandidatures']);
     });
 
     
     Route::middleware('role:recruteur')->group(function () {
         Route::post('offres', [OffreController::class, 'store']); 
+        Route::get('offres/{offre}/candidatures', [OffreController::class, 'candidaturesRecues']);
         Route::patch('candidatures/{candidature}/statut', [OffreController::class, 'updateStatut']); 
     });
 
