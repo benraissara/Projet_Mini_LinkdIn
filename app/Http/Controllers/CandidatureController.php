@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Offre;
 use App\Models\Candidature;
 use Illuminate\Http\Request;
+use App\Events\StatutCandidatureMis;
 
 class CandidatureController extends Controller
 {
@@ -70,10 +71,19 @@ class CandidatureController extends Controller
         }
 
         $validated = $request->validate([
-            'statut' => 'required|in:en_attente,acceptee,refusee'
+            'statut' => 'required|in:en attente,acceptee,refusee'
         ]);
 
-        $candidature->update(['statut' => $validated['statut']]);
+        // On sauvegarde l'ancien statut avant la mise à jour
+        $ancienStatut = $candidature->statut;
+        $nouveauStatut = $validated['statut'];
+
+        $candidature->update(['statut' => $nouveauStatut]);
+
+        // Si le statut a réellement changé, on déclenche l'Event
+        if ($ancienStatut !== $nouveauStatut) {
+            StatutCandidatureMis::dispatch($candidature, $ancienStatut, $nouveauStatut);
+        }
 
         return response()->json(['message' => 'Statut mis à jour.', 'candidature' => $candidature], 200);
     }
