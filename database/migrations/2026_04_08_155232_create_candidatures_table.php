@@ -17,7 +17,7 @@ return new class extends Migration
             $table->foreignId('offre_id')->constrained('offres')->onDelete('cascade');
             $table->foreignId('profil_id')->constrained('profils')->onDelete('cascade');
             $table->text('message');
-            $table->enum('statu', ['en attente', 'acceptee', 'refusee'])->default('en attente');
+            $table->enum('statut', ['en_attente', 'acceptee', 'refusee'])->default('en_attente');
         });
     }
 

@@ -3,86 +3,88 @@
 namespace App\Http\Controllers;
 
 use App\Models\Offre;
-use App\Models\Candidature;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Validator;
+
 
 class OffreController extends Controller
 {
-    // 1. POST /api/offres/{id}/candidater (Candidat)
-    public function postuler(Request $request, $id)
+    
+
+    public function show($id) 
     {
-        $offre = Offre::where('id', $id)->where('actif', true)->first();
-
-        if (!$offre) {
-            return response()->json(['message' => 'Offre non disponible'], 404);
-        }
-
-        // Vérifier si le candidat a déjà postulé
-        $dejaPostule = Candidature::where('user_id', Auth::id())
-                                   ->where('offre_id', $id)
-                                   ->exists();
-
-        if ($dejaPostule) {
-            return response()->json(['message' => 'Vous avez déjà postulé à cette offre'], 400);
-        }
-
-        $candidature = Candidature::create([
-            'user_id' => Auth::id(),
-            'offre_id' => $id,
-            'statut' => 'en attente',
-        ]);
-
-        return response()->json(['message' => 'Candidature envoyée', 'data' => $candidature], 201);
+        $offre = Offre::findOrFail($id);
+        
+        return response()->json([
+            'message' => 'Offre trouvée avec succès',
+            'data' => $offre
+        ], 200);
     }
 
-    // 2. GET /api/mes-candidatures (Candidat)
-    // Règle d'ownership : On ne récupère que celles liées à Auth::id()
-    public function mesCandidatures()
-    {
-        $candidatures = Candidature::with('offre')
-                                    ->where('user_id', Auth::id())
-                                    ->get();
-
-        return response()->json($candidatures);
-    }
-
-    // 3. GET /api/offres/{id}/candidatures (Recruteur propriétaire)
-    public function candidaturesRecues($id)
+    public function update(Request $request, $id) // Changé Offre $offre en $id
     {
         $offre = Offre::findOrFail($id);
 
-        // Règle d'ownership : Seul le propriétaire de l'offre voit les candidats
-        if ($offre->user_id !== Auth::id()) {
-            return response()->json(['message' => 'Accès interdit - 403'], 403);
+        if (Auth::id() !== $offre->user_id) {
+            return response()->json(['message' => 'Non autorisé - 403'], 403);
         }
 
-        $candidatures = Candidature::with('user')->where('offre_id', $id)->get();
-        return response()->json($candidatures);
-    }
-
-    // 4. PATCH /api/candidatures/{id}/statut (Recruteur propriétaire)
-    public function updateStatut(Request $request, $id)
-    {
-        $validator = Validator::make($request->all(), [
-            'statut' => 'required|in:acceptée,refusée,en attente',
+        $validate = $request->validate([
+            'titre' => 'required|max:255',
+            'description' => 'required',
+            'localisation' => 'required',
+            'type' => 'required|in:CDI,CDD,Stage'
         ]);
 
-        if ($validator->fails()) {
-            return response()->json($validator->errors(), 422);
+        $offre->update($validate);
+
+        return response()->json([
+            'message' => 'Offre mise à jour',
+            'data' => $offre
+        ]);
+    }
+
+    public function destroy($id) 
+    {
+        $offre = Offre::findOrFail($id);
+
+        if (Auth::id() !== $offre->user_id) {
+            return response()->json(['message' => 'Non autorisé - 403'], 403);
         }
 
-        $candidature = Candidature::findOrFail($id);
-        $offre = Offre::findOrFail($candidature->offre_id);
+        $offre->delete();
 
-        // Règle d'ownership : Seul le créateur de l'offre peut changer le statut
-        if ($offre->user_id !== Auth::id()) {
-            return response()->json(['message' => 'Action non autorisée - 403'], 403);
-        }
+        return response()->json([
+            'message' => 'Offre supprimée'
+        ]);
+    }
 
-        $candidature->update(['statut' => $request->statut]);
+    
+    public function index(Request $request)
+    {
+        $query = Offre::query()->where('actif', true);
+        if ($request->has('localisation')) { $query->where('localisation', $request->localisation); }
+        if ($request->has('type')) { $query->where('type', $request->type); }
 
-        return response()->json(['message' => 'Statut mis à jour', 'data' => $candidature]);
+        $offres = $query->latest()->paginate(10);
+        return response()->json($offres, 200);
+    }
+
+    public function store(Request $request)
+    {
+        $validate = $request->validate([
+            'titre' => 'required|max:255',
+            'description' => 'required',
+            'localisation' => 'required',
+            'type' => 'required|in:CDI,CDD,Stage'
+        ]);
+
+        $validate['user_id'] = Auth::id();
+        $offre = Offre::create($validate);
+
+        return response()->json([
+            'message' => 'Offre créée avec succès',
+            'data' => $offre
+        ], 201);
     }
 }
