@@ -6,13 +6,22 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Facades\Auth; // <-- Importez la façade Auth
+use Illuminate\Support\Facades\Auth;
 
 class AuthController extends Controller
 {
     public function register(Request $request)
     {
-        // ... votre validation ...
+        $validator = Validator::make($request->all(), [
+            'name' => 'required|string|max:255',
+            'email' => 'required|string|email|max:255|unique:users',
+            'password' => 'required|string|min:6',
+            'role' => 'required|in:candidat,recruteur,admin', // Validation stricte des rôles 
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json($validator->errors(), 422);
+        }
 
         $user = User::create([
             'name' => $request->name,
@@ -21,8 +30,6 @@ class AuthController extends Controller
             'role' => $request->role,
         ]);
 
-        // Précisez le guard 'api' pour que l'IDE comprenne qu'on utilise JWT
-        /** @var \Tymon\JWTAuth\JWT $auth */
         $token = Auth::guard('api')->login($user); 
 
         return response()->json([
@@ -36,10 +43,7 @@ class AuthController extends Controller
     {
         $credentials = $request->only('email', 'password');
 
-        // On utilise Auth::guard('api') pour appeler attempt()
-        $token = Auth::guard('api')->attempt($credentials);
-
-        if (!$token) {
+        if (!$token = Auth::guard('api')->attempt($credentials)) {
             return response()->json(['error' => 'Email ou mot de passe incorrect'], 401);
         }
 
@@ -48,5 +52,11 @@ class AuthController extends Controller
             'token_type' => 'bearer',
             'user' => Auth::guard('api')->user()
         ]);
+    }
+
+    public function logout()
+    {
+        Auth::guard('api')->logout();
+        return response()->json(['message' => 'Déconnexion réussie']);
     }
 }
