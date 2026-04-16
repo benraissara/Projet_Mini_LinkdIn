@@ -63,7 +63,7 @@ class OffreController extends Controller
     public function updateStatut(Request $request, $id)
     {
         $validator = Validator::make($request->all(), [
-            'statut' => 'required|in:acceptée,refusée,en attente',
+            'statut' => 'required|in:acceptee,refusee,en_attente',
         ]);
 
         if ($validator->fails()) {
@@ -84,6 +84,7 @@ class OffreController extends Controller
         $candidature->update(['statut' => $request->statut]);
 
         return response()->json(['message' => 'Statut mis à jour', 'candidature' => $candidature]);
+    }
 
     public function index(Request $request)
     {
