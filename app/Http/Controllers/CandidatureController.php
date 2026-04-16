@@ -2,64 +2,79 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Offre;
 use App\Models\Candidature;
 use Illuminate\Http\Request;
 
 class CandidatureController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    // --- PARTIE CANDIDAT ---
+
+    // POST /api/offres/{offre}/candidater
+    public function store(Offre $offre)
     {
-        //
+        $user = auth()->user();
+
+        // Vérifier si le candidat a déjà postulé (évite les doublons)
+        $dejaPostule = Candidature::where('user_id', $user->id)
+                                 ->where('offre_id', $offre->id)
+                                 ->exists();
+
+        if ($dejaPostule) {
+            return response()->json(['message' => 'Vous avez déjà postulé à cette offre.'], 422);
+        }
+
+        $candidature = Candidature::create([
+            'user_id' => $user->id,
+            'offre_id' => $offre->id,
+            'statut' => 'en_attente' // Statut par défaut
+        ]);
+
+        return response()->json(['message' => 'Candidature envoyée !', 'candidature' => $candidature], 201);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
+    // GET /api/mes-candidatures
+    public function mesCandidatures()
     {
-        //
+        // Règle d'ownership : Un candidat ne peut consulter que ses propres candidatures
+        $candidatures = Candidature::where('user_id', auth()->id())
+                                   ->with('offre')
+                                   ->get();
+
+        return response()->json($candidatures, 200);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
+
+    // --- PARTIE RECRUTEUR ---
+
+    // GET /api/offres/{offre}/candidatures
+    public function indexByOffre(Offre $offre)
     {
-        //
+        // Règle d'ownership : 403 si l'offre n'est pas au recruteur
+        if (auth()->user()->role !== 'admin' && $offre->user_id !== auth()->id()) {
+            return response()->json(['message' => 'Accès interdit.'], 403);
+        }
+
+        $candidatures = $offre->candidatures()->with('user')->get();
+        return response()->json($candidatures, 200);
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(Candidature $candidature)
+    // PATCH /api/candidatures/{candidature}/statut
+    public function updateStatut(Request $request, Candidature $candidature)
     {
-        //
-    }
+        $offre = $candidature->offre;
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Candidature $candidature)
-    {
-        //
-    }
+        // Règle d'ownership
+        if (auth()->user()->role !== 'admin' && $offre->user_id !== auth()->id()) {
+            return response()->json(['message' => 'Accès interdit.'], 403);
+        }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, Candidature $candidature)
-    {
-        //
-    }
+        $validated = $request->validate([
+            'statut' => 'required|in:en_attente,acceptee,refusee'
+        ]);
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Candidature $candidature)
-    {
-        //
+        $candidature->update(['statut' => $validated['statut']]);
+
+        return response()->json(['message' => 'Statut mis à jour.', 'candidature' => $candidature], 200);
     }
 }
