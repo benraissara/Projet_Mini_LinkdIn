@@ -39,4 +39,4 @@ Route::middleware('auth:api')->group(function () {
         Route::patch('admin/offres/{offre}', [AdminController::class, 'toggleOffre']); 
     });
 
-});git add <div class=""></div>
+});
