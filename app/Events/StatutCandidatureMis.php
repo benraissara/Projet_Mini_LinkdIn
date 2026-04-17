@@ -3,22 +3,18 @@
 namespace App\Events;
 
 use App\Models\Candidature;
-use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 
 class StatutCandidatureMis
 {
-    use Dispatchable, InteractsWithSockets, SerializesModels;
+    use Dispatchable, SerializesModels;
 
     public $candidature;
     public $ancienStatut;
     public $nouveauStatut;
 
-    /**
-     * Create a new event instance.
-     */
-    public function __construct(Candidature $candidature, $ancienStatut, $nouveauStatut)
+    public function __construct(Candidature $candidature, string $ancienStatut, string $nouveauStatut)
     {
         $this->candidature = $candidature;
         $this->ancienStatut = $ancienStatut;
