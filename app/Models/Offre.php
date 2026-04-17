@@ -23,4 +23,5 @@ class Offre extends Model
     public function candidatures(){
         return $this->hasMany(Candidature::class);
     }
+    
 }

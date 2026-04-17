@@ -11,7 +11,7 @@ class Candidature extends Model
         'offre_id',
         'profil_id',
         'message',
-        'statu',
+        'statut',
     ];
     public function offre(){
         return $this->belongsTo(Offre::class);
@@ -19,4 +19,8 @@ class Candidature extends Model
     public function profil(){
         return $this->belongsTo(Profil::class);
     }
+    public function user()
+{
+    return $this->belongsTo(User::class);
+}
 }
