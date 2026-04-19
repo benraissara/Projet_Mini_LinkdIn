@@ -1,0 +1,149 @@
+{
+    "info": {
+        "name": "Mini-LinkedIn API",
+        "description": "Postman collection for Mini-LinkedIn API",
+        "schema": "http://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    },
+    "item": [
+        {
+            "name": "Authentication",
+            "item": [
+                {
+                    "name": "Login",
+                    "request": {
+                        "method": "POST",
+                        "header": [],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"username\": \"your_username\",\n  \"password\": \"your_password\"\n}\n"
+                        },
+                        "url": "{{base_url}}/auth/login"
+                    }
+                },
+                {
+                    "name": "Register",
+                    "request": {
+                        "method": "POST",
+                        "header": [],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"username\": \"new_username\",\n  \"email\": \"email@example.com\",\n  \"password\": \"your_password\"\n}\n"
+                        },
+                        "url": "{{base_url}}/auth/register"
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Offres",
+            "item": [
+                {
+                    "name": "Get All Offers",
+                    "request": {
+                        "method": "GET",
+                        "url": "{{base_url}}/offers"
+                    }
+                },
+                {
+                    "name": "Create Offer",
+                    "request": {
+                        "method": "POST",
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"title\": \"Offer Title\",\n  \"description\": \"Offer Description\",\n  \"company\": \"Company Name\"\n}\n"
+                        },
+                        "url": "{{base_url}}/offers"
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Profil",
+            "item": [
+                {
+                    "name": "Get User Profile",
+                    "request": {
+                        "method": "GET",
+                        "url": "{{base_url}}/profile/me"
+                    }
+                },
+                {
+                    "name": "Update User Profile",
+                    "request": {
+                        "method": "PUT",
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"bio\": \"New bio\"\n}\n"
+                        },
+                        "url": "{{base_url}}/profile/me"
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Candidatures",
+            "item": [
+                {
+                    "name": "Get All Applications",
+                    "request": {
+                        "method": "GET",
+                        "url": "{{base_url}}/applications"
+                    }
+                },
+                {
+                    "name": "Submit Application",
+                    "request": {
+                        "method": "POST",
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"offerId\": \"offer_id\"\n}\n"
+                        },
+                        "url": "{{base_url}}/applications"
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Admin",
+            "item": [
+                {
+                    "name": "Get All Users",
+                    "request": {
+                        "method": "GET",
+                        "url": "{{base_url}}/admin/users"
+                    }
+                },
+                {
+                    "name": "Delete User",
+                    "request": {
+                        "method": "DELETE",
+                        "url": "{{base_url}}/admin/users/{id}"
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Error Test Cases",
+            "item": [
+                {
+                    "name": "Test Invalid Login",
+                    "request": {
+                        "method": "POST",
+                        "url": "{{base_url}}/auth/login",
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"username\": \"wrong_username\",\n  \"password\": \"wrong_password\"\n}\n"
+                        }
+                    }
+                },
+                {
+                    "name": "Test Not Found",
+                    "request": {
+                        "method": "GET",
+                        "url": "{{base_url}}/nonexistent"
+                    }
+                }
+            ]
+        }
+    ]
+}
