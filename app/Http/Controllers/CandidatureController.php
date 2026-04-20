@@ -63,8 +63,8 @@ class CandidatureController extends Controller
     // --- PARTIE RECRUTEUR ---
     public function indexByOffre(Offre $offre)
     {
-        
-        if (auth()->user()->role !== 'admin' && $offre->user_id !== auth()->id()) {
+        // Règle d'ownership : 403 si l'offre n'est pas au recruteur
+        if (auth()->user()->role !== 'recruteur' && $offre->user_id !== auth()->id()) {
             return response()->json(['message' => 'Accès interdit.'], 403);
         }
 
@@ -78,8 +78,8 @@ class CandidatureController extends Controller
     {
         $offre = $candidature->offre;
 
-       
-        if (auth()->user()->role !== 'admin' && $offre->user_id !== auth()->id()) {
+        // Règle d'ownership
+        if (auth()->user()->role !== 'recruteur' && $offre->user_id !== auth()->id()) {
             return response()->json(['message' => 'Accès interdit.'], 403);
         }
 

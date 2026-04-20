@@ -79,4 +79,19 @@ class ProfilController extends Controller
 
         return response()->json(['message' => 'Compétence ajoutée']);
     }
+
+    // Dans ProfilController.php
+
+public function removeCompetence($competenceId)
+{
+    $profil = Auth::user()->profil;
+
+    if (!$profil) {
+        return response()->json(['message' => 'Profil non trouvé'], 404);
+    }
+
+    $profil->competences()->detach($competenceId);
+
+    return response()->json(['message' => 'Compétence supprimée du profil']);
+}
 }
