@@ -15,22 +15,22 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // 1. Générer 2 administrateurs
+        // 2 administrateurs
         User::factory(2)->create([
             'role' => 'admin',
         ]);
 
-        // 2. Générer 5 recruteurs avec 2 à 3 offres chacun
+        //  5 recruteurs avec 2 à 3 offres chacun
         User::factory(5)->create([
             'role' => 'recruteur',
         ])->each(function ($user) {
-            // Pour chaque recruteur, on crée un nombre aléatoire d'offres (entre 2 et 3)
+            // offres (entre 2 et 3)
             Offre::factory(rand(2, 3))->create([
                 'user_id' => $user->id,
             ]);
         });
 
-        // 3. Générer 10 candidats avec profils et compétences
+        // 10 candidats avec profils et compétences
         User::factory(10)->create([
             'role' => 'candidat',
         ])->each(function ($user) {
