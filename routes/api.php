@@ -27,7 +27,7 @@ Route::middleware('auth:api')->group(function () {
         
         // Compétences
         Route::post('profil/competences', [ProfilController::class, 'addCompetence']); 
-        Route::delete('profil/competences/{competence}', [CompetenceProfilController::class, 'destroy']); 
+        Route::delete('profil/competences/{competence}', [ProfilController::class, 'removeCompetence']); 
         
         // Candidatures
         Route::post('offres/{offre}/candidater', [CandidatureController::class, 'store']); 
