@@ -15,11 +15,11 @@ class Offre extends Model
         'actif',
         'user_id',
     ];
-    // Une offre appartient à un recruteur (User)
+    
     public function user(){
         return $this->belongsTo(User::class);
     }
-    // Une offre peut avoir plusieurs candidatures
+   
     public function candidatures(){
         return $this->hasMany(Candidature::class);
     }

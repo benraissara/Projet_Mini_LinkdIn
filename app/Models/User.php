@@ -31,7 +31,7 @@ class User extends Authenticatable implements JWTSubject
         ];
     }
 
-    // Méthodes JWT
+    
     public function getJWTIdentifier()
     {
         return $this->getKey();
@@ -39,7 +39,7 @@ class User extends Authenticatable implements JWTSubject
 
     public function getJWTCustomClaims()
     {
-        return ['role' => $this->role]; // Optionnel: ajoute le rôle au token
+        return ['role' => $this->role]; 
     }
 
     
